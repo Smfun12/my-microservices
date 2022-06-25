@@ -1,0 +1,136 @@
+version: '3'
+services:
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./prometheus-config/:/etc/prometheus/
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
+    ports:
+      - "9090:9090"
+    networks:
+      - central
+
+    restart: always
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    depends_on:
+      - prometheus
+    ports:
+      - "3000:3000"
+    networks:
+      - central
+    volumes:
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
+
+  rabbitmq:
+    container_name: "rabbit_mq"
+    image: "rabbitmq"
+    networks:
+      - sender
+      - recipient
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+  db:
+    image: postgres
+    container_name: db
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=postgres
+    ports:
+      - "5432:5432"
+  eureka-server:
+    container_name: "eureka"
+    image: "eureka"
+    build: custom-eurekaserver/
+    networks:
+      - central
+    ports:
+      - "8761:8761"
+    environment:
+      eureka.instance.hostname: eureka-server
+      eureka.client.serviceUrl.defaultZone: http://eureka-server:8761/eureka
+  micro-sender:
+    container_name: sender
+    image: "sender"
+    build: micro-sender/
+    networks:
+      - sender
+      - central
+    ports:
+      - "8082:8082"
+    environment:
+      - spring_rabbitmq_host=rabbitmq
+      - spring_rabbitmq_port=5672
+      - spring_rabbitmq_username=guest
+      - spring_rabbitmq_password=guest
+      - eureka.client.serviceUrl.defaultZone=http://eureka-server:8761/eureka/
+    depends_on:
+      - rabbitmq
+      - eureka-server
+  micro-recipient:
+    container_name: "recipient"
+    image: "recipient"
+    build: micro-recipient/
+    networks:
+      - recipient
+      - central
+    ports:
+      - "8081:8081"
+    depends_on:
+      - rabbitmq
+      - eureka-server
+    environment:
+      - eureka.client.serviceUrl.defaultZone=http://eureka-server:8761/eureka/
+  micro-collection:
+    container_name: "collector"
+    image: "collector"
+    build: micro-collection/
+    networks:
+      - recipient
+      - central
+    ports:
+      - "8080:8080"
+    depends_on:
+      - rabbitmq
+      - eureka-server
+      - db
+      - micro-recipient
+    environment:
+      - eureka.client.serviceUrl.defaultZone=http://eureka-server:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://192.168.1.2:5432/postgres
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING.JPA.PROPERTIES.HIBERNATE.DIALECT=org.hibernate.dialect.PostgreSQLDialect
+  micro-visualizer:
+    container_name: "visualizer"
+    image: "visualizer"
+    build: micro-visualizer/
+    ports:
+      - "8083:8083"
+    depends_on:
+      - micro-recipient
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/postgres
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING.JPA.PROPERTIES.HIBERNATE.DIALECT=org.hibernate.dialect.PostgreSQLDialect
+
+networks:
+  sender:
+
+  recipient:
+
+  central:

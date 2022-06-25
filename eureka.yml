@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: eureka-service
+  name: eureka-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eureka-service
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: eureka-service
+    spec:
+      containers:
+      - image: smfun12/eureka
+        name: eureka
+        resources: {}
+        env:
+          - name: eureka.client.register-with-eureka
+            value: 'false'
+          - name: eureka.client.fetch-registry
+            value: 'false'
+
+status: {}

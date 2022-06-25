@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="micro-collection" />
+        <module name="micro-visualizer" />
+        <module name="micro-sender" />
+        <module name="jms-server" />
+        <module name="custom-eurekaserver" />
+        <module name="micro-recipient" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="jms-server" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="custom-eurekaserver" options="-parameters" />
+      <module name="jms-server" options="-parameters" />
+      <module name="micro-collection" options="-parameters" />
+      <module name="micro-recipient" options="-parameters" />
+      <module name="micro-sender" options="-parameters" />
+      <module name="micro-visualizer" options="-parameters" />
+    </option>
+  </component>
+</project>

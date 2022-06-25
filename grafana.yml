@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: grafana-service
+  name: grafana-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana-service
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: grafana-service
+    spec:
+      containers:
+      - image: grafana/grafana
+        name: grafana
+        resources: {}
+status: {}

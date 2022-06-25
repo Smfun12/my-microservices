@@ -1,0 +1,430 @@
+# Credentials service
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: admin-user
+  namespace: kubernetes-dashboard
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: admin-user
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: admin-user
+    namespace: kubernetes-dashboard
+
+---
+
+# Eureka deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: eureka-service
+  name: eureka-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eureka-service
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: eureka-service
+    spec:
+      containers:
+        - image: smfun12/eureka
+          name: eureka
+          resources: {}
+          env:
+            - name: eureka.client.register-with-eureka
+              value: 'false'
+            - name: eureka.client.fetch-registry
+              value: 'false'
+
+status: {}
+---
+# Eureka service
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: eureka-service
+  name: eureka-service
+spec:
+  ports:
+    - name: 8761-8761
+      port: 8761
+      protocol: TCP
+      targetPort: 8761
+  selector:
+    app: eureka-service
+  type: ClusterIP
+status:
+  loadBalancer: {}
+---
+# Postgres deplyment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: postgres-service
+  name: postgres-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-service
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: postgres-service
+    spec:
+      containers:
+        - image: postgres
+          name: postgres
+          resources: {}
+          env:
+            - name: POSTGRES_PASSWORD
+              value: root
+            - name: POSTGRES_DB
+              value: postgres
+status: {}
+---
+# Postgres service
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: postgres-service
+  name: postgres-service
+spec:
+  ports:
+    - name: 5432-5432
+      port: 5432
+      protocol: TCP
+      targetPort: 5432
+  selector:
+    app: postgres-service
+  type: ClusterIP
+status:
+  loadBalancer: {}
+---
+# Prometheus deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: prometheus-service
+  name: prometheus-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus-service
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: prometheus-service
+    spec:
+      containers:
+        - image: prom/prometheus
+          name: prometheus
+          resources: {}
+status: {}
+---
+# Prometheus service
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: prometheus-service
+  name: prometheus-service
+spec:
+  ports:
+    - name: 9090-9090
+      port: 9090
+      protocol: TCP
+      targetPort: 9090
+  selector:
+    app: prometheus-service
+  type: ClusterIP
+status:
+  loadBalancer: {}
+---
+# Grafana deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: grafana-service
+  name: grafana-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana-service
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: grafana-service
+    spec:
+      containers:
+        - image: grafana/grafana
+          name: grafana
+          resources: {}
+status: {}
+---
+# Grafana service
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: grafana-service
+  name: grafana-service
+spec:
+  ports:
+    - name: 3000-3000
+      port: 3000
+      protocol: TCP
+      targetPort: 3000
+  selector:
+    app: grafana-service
+  type: ClusterIP
+status:
+  loadBalancer: {}
+---
+# Rabbitmq deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: rabbimq-service
+  name: rabbimq-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbimq-service
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: rabbimq-service
+    spec:
+      containers:
+        - image: rabbitmq
+          name: rabbitmq
+          resources: {}
+
+status: {}
+---
+# Rabbitmq service
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: rabbitmq-service
+  name: rabbitmq-service
+spec:
+  ports:
+    - name: 5672-5672
+      port: 5672
+      protocol: TCP
+      targetPort: 5672
+    - name: 15672-15672
+      port: 15672
+      protocol: TCP
+      targetPort: 15672
+  selector:
+    app: rabbitmq-service
+  type: ClusterIP
+status:
+  loadBalancer: {}
+---
+# Sender deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: sender-service
+  name: sender-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sender-service
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: sender-service
+    spec:
+      containers:
+        - image: smfun12/sender
+          name: sender
+          resources: {}
+status: {}
+---
+# Sender service
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: sender-service
+  name: sender-service
+spec:
+  ports:
+    - name: 8082-8082
+      port: 8082
+      protocol: TCP
+      targetPort: 8082
+  selector:
+    app: sender-service
+  type: ClusterIP
+status:
+  loadBalancer: {}
+---
+# Recipient deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: recipient-service
+  name: recipient-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: recipient-service
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: recipient-service
+    spec:
+      containers:
+        - image: smfun12/recipient
+          name: recipient
+          resources: {}
+          env:
+            - name: SPRING_RABBITMQ_HOST
+              value: 10.110.212.174
+            - name: SPRING_RABBIT_MQ_PORT
+              value: '5672'
+            - name: SPRING_RABBIT_MQ_USERNAME
+              value: guest
+            - name: SPRING_RABBIT_MQ_PASSWORD
+              value: guest
+            - name: EUREKA_INSTANCE_HOSTNAME
+              value: eureka-server
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULT_ZONE
+              value: http://10.111.6.84:8761/eureka
+status: {}
+---
+# Recipient service
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: recipient-service
+  name: recipient-service
+spec:
+  ports:
+    - name: 8081-8081
+      port: 8081
+      protocol: TCP
+      targetPort: 8081
+  selector:
+    app: recipient-service
+  type: ClusterIP
+status:
+  loadBalancer: {}
+---
+# Collector deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: collector-service
+  name: collector-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: collector-service
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: collector-service
+    spec:
+      containers:
+        - image: smfun12/collector
+          name: collector
+          resources: {}
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://host.docker.internal:5432/postgres
+            - name: SPRING_DATASOURCE_USERNAME
+              value: postgres
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: root
+            - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+              value: update
+            - name: SPRING.JPA.PROPERTIES.HIBERNATE.DIALECT
+              value: org.hibernate.dialect.PostgreSQLDialect
+status: {}
+---
+# Collector service
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: collector-service
+  name: collector-service
+spec:
+  ports:
+    - name: 8079-8079
+      port: 8079
+      protocol: TCP
+      targetPort: 8079
+  selector:
+    app: collector-service
+  type: ClusterIP
+status:
+  loadBalancer: {}
+

@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: recipient-service
+  name: recipient-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: recipient-service
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: recipient-service
+    spec:
+      containers:
+      - image: smfun12/recipient
+        name: recipient
+        resources: {}
+        env:
+          - name: SPRING_RABBITMQ_HOST
+            value: 10.1.0.158
+          - name: SPRING_RABBIT_MQ_PORT
+            value: '5672'
+          - name: SPRING_RABBIT_MQ_USERNAME
+            value: guest
+          - name: SPRING_RABBIT_MQ_PASSWORD
+            value: guest
+#          - name: EUREKA_INSTANCE_HOSTNAME
+#            value: 10.1.0.119
+#          - name: EUREKA_CLIENT_SERVICEURL_DEFAULT_ZONE
+#            value: http://10.1.0.119:8761/eureka
+status: {}

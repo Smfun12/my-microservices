@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: collector-service
+  name: collector-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: collector-service
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: collector-service
+    spec:
+      containers:
+      - image: smfun12/collector
+        name: collector
+        resources: {}
+        env:
+          - name: SPRING_DATASOURCE_URL
+            value: jdbc:postgresql://10.1.0.164:5432/postgres
+          - name: SPRING_DATASOURCE_USERNAME
+            value: postgres
+          - name: SPRING_DATASOURCE_PASSWORD
+            value: root
+          - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+            value: update
+          - name: SPRING.JPA.PROPERTIES.HIBERNATE.DIALECT
+            value: org.hibernate.dialect.PostgreSQLDialect
+status: {}
